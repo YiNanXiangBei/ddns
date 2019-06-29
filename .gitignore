@@ -1,0 +1,7 @@
+
+/ddns.iml
+/.idea/
+/ddns-common/target/
+/ddns-web/target/
+/ddns-server/target/
+/dist/
