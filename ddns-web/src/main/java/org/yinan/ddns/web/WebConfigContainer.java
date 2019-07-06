@@ -2,6 +2,7 @@ package org.yinan.ddns.web;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -9,6 +10,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yinan.ddns.common.container.Container;
@@ -53,9 +55,17 @@ public class WebConfigContainer implements Container {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         ChannelPipeline pipeline = socketChannel.pipeline();
-                        //解码器，将http请求解码成多个对象，或者将多个对象编码成一个返回
+                        //将请求和应答消息编码或者解码为HTTP消息
                         pipeline.addLast(new HttpServerCodec());
-                        pipeline.addLast(new HttpObjectAggregator(64 * 1024));
+                        /*
+                         * httpObject 解码器,
+                         * 它的作用是将多个消息转换为单一的FullHttpRequest或FullHttpResponse
+                         * 对象,原因是HTTP 解码器在每个HTTP消息中会生成多个消息对象 (
+                         * HttpRequest/HttpResponse
+                         * ,HttpContent,LastHttpContent)
+                         */
+                        pipeline.addLast(new HttpObjectAggregator(512 * 1024));
+                        //主要作用是支持异步发送大的码流(例如大文件传输),但不占用过多的内存,防止JAVA内存溢出
                         pipeline.addLast(new ChunkedWriteHandler());
                         pipeline.addLast(new HttpRequestHandler());
                     }

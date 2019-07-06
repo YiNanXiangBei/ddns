@@ -28,7 +28,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     private static Logger logger = LoggerFactory.getLogger(HttpRequestHandler.class);
 
-    private static Pattern PATTERN = Pattern.compile("^.*?\\.(jpg|jpeg|html|gif|js|css|json|ico)$");
+    private static Pattern PATTERN = Pattern.compile("^.*?\\.(jpg|jpeg|html|gif|js|css|json|ico|svg|woff2|woff|ttf)$");
 
     /**
      * shell脚本中有写一些参数变量，这里就是调用shell脚本中的东西 java -D命令
@@ -60,6 +60,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
                     //有后缀名的文件，直接去查找该文件，不经过请求
                     if (matcher.matches()) {
                         outputPages(channelHandlerContext, request);
+                        return;
                     } else {
                         //无后缀名的文件需要经过请求去拦截判断相关数据
                         ObjectMethod objectMethod = RoutesManager.INSTANCE.gotGetMethod(uri.getPath());
@@ -70,7 +71,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
                     }
                 } else if (HttpMethod.POST == request.method()) {
                     ObjectMethod objectMethod = RoutesManager.INSTANCE.gotPostMethod(uri.getPath());
-                    logger.info("get objectmethod: {}", objectMethod);
+                    logger.info("get object method: {}", objectMethod);
                     if (objectMethod != null) {
                         responseInfo = (ResponseInfo)objectMethod.getMethod().invoke(objectMethod.getClazz().newInstance(), request);
                         responseInfo.headers(HttpHeaderNames.CONTENT_TYPE, "Application/json;charset=utf-8");
@@ -118,8 +119,8 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         URI uri = new URI(request.uri());
         String uriPath = uri.getPath();
         String path = PAGE_FOLDER + uriPath;
-        File rfile = new File(path);
-        if (!rfile.exists()) {
+        File rFile = new File(path);
+        if (!rFile.exists()) {
             status = HttpResponseStatus.NOT_FOUND;
             outputContent(ctx, request, status.code(), ResponseInfo.build(status.code(), status.toString()), "text/html");
             return;
@@ -132,7 +133,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         long length = 0;
         RandomAccessFile raf = null;
         try {
-            raf = new RandomAccessFile(rfile, "r");
+            raf = new RandomAccessFile(rFile, "r");
             length = raf.length();
         } finally {
             if (length < 0) {
@@ -170,5 +171,14 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
     private static void send100Continue(ChannelHandlerContext ctx) {
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE);
         ctx.writeAndFlush(response);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.error("server meet error: {}", cause);
+        Channel channel = ctx.channel();
+        if (channel.isActive()) {
+            ctx.close();
+        }
     }
 }

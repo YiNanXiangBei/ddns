@@ -11,6 +11,17 @@
 
     <artifactId>ddns-server</artifactId>
     <version>1.0.0</version>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.yinan.ddns</groupId>
+            <artifactId>ddns-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.yinan.ddns</groupId>
+            <artifactId>ddns-web</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
 
 </project>

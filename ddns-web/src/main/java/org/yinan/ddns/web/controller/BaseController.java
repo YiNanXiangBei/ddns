@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yinan.ddns.common.util.CookieUtil;
 import org.yinan.ddns.common.util.JsonUtil;
 import org.yinan.ddns.web.annotation.Controller;
 import org.yinan.ddns.web.annotation.PostMapping;
@@ -31,7 +32,7 @@ public class BaseController {
     public ResponseInfo login(FullHttpRequest request) {
         LOGGER.info("get login!");
 
-        String sessionId = getSessionId(request);
+        String sessionId = CookieUtil.getSessionId(request);
 
         if (SessionManager.getInstance().validateSession(sessionId)) {
             ResponseInfo responseInfo =  ResponseInfo.build(ResponseInfo.CODE_OK, "login success");
@@ -67,24 +68,13 @@ public class BaseController {
 
     @PostMapping("/logout")
     public ResponseInfo logout(FullHttpRequest request) {
-        String sessionId = getSessionId(request);
+        String sessionId = CookieUtil.getSessionId(request);
         if (SessionManager.getInstance().removeSession(sessionId)) {
             return ResponseInfo.build(ResponseInfo.CODE_OK, "logout success");
         }
         return ResponseInfo.build(ResponseInfo.CODE_SYSTEM_ERROR, "logout failed");
     }
 
-    private String getSessionId(FullHttpRequest request) {
-        String cookieStr = request.headers().get(HttpHeaderNames.COOKIE);
-        if (!StringUtil.isNullOrEmpty(cookieStr)) {
-            Set<Cookie> cookies = ServerCookieDecoder.STRICT.decode(cookieStr);
-            for (Cookie cookie : cookies) {
-                if ("JSESSIONID".equals(cookie.name())) {
-                    return cookie.value();
-                }
-            }
-        }
-        return "";
-    }
+
 
 }
