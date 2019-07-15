@@ -38,6 +38,8 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     private static final String SERVER_VS = "LPS-0.1";
 
+    private static final String NOT_FOUND_PAGE = "/404.html";
+
     /**
      * 处理http请求 目前仅支持get和post请求，所有处理返回结果均为json格式，后续可能会推出返回文件数据类型
      * @param channelHandlerContext
@@ -121,9 +123,8 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         String path = PAGE_FOLDER + uriPath;
         File rFile = new File(path);
         if (!rFile.exists()) {
-            status = HttpResponseStatus.NOT_FOUND;
-            outputContent(ctx, request, status.code(), ResponseInfo.build(status.code(), status.toString()), "text/html");
-            return;
+            path = PAGE_FOLDER + NOT_FOUND_PAGE;
+            rFile = new File(path);
         }
         if (HttpUtil.is100ContinueExpected(request)) {
             send100Continue(ctx);

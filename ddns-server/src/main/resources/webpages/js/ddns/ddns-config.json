@@ -1,0 +1,23 @@
+[
+  {
+    "id":0,
+    "address":"127.0.0.1 - 127.1.1.1",
+    "domain":"wongwongsu.com",
+    "model":1,
+    "enable":0
+  },
+  {
+    "id":1,
+    "address":"127.0.0.1",
+    "domain":"baidu.com",
+    "model":2,
+    "enable":1
+  },
+  {
+    "id":2,
+    "address":"127.0.0.1",
+    "domain":"baidu.com",
+    "model":4,
+    "enable":1
+  }
+]

@@ -32,7 +32,7 @@ public class BaseMiddleware implements IRequestMiddleware{
 
     private static final String LOGIN = "/login";
 
-    private static Pattern PATTERN = Pattern.compile("^.*?\\.(jpg|jpeg|html|gif|js|css|json|ico)$");
+    private static Pattern PATTERN = Pattern.compile("^.*?\\.(jpg|jpeg|html|gif|js|css|json|ico|svg|woff2|woff|ttf)$");
 
     @Override
     public void preRequest(FullHttpRequest request) throws Exception {
