@@ -73,6 +73,9 @@ public class BaseMiddleware implements IRequestMiddleware{
                     LOGGER.info("validate session failed ");
                     throw new ContextException(ResponseInfo.CODE_UNAUTHORIZED, "no authority");
                 }
+            } else { //没有JSESSIONID字段，验证不通过
+                LOGGER.info("validate session failed ");
+                throw new ContextException(ResponseInfo.CODE_UNAUTHORIZED, "no authority");
             }
         } else {
             throw new ContextException(ResponseInfo.CODE_UNAUTHORIZED, "no authority");

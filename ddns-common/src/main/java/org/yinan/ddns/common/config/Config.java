@@ -106,11 +106,11 @@ public class Config {
         return LangUtil.parseDouble(configuration.getProperty(key));
     }
 
-    public double getLongValue(String key, Long defaultValue) {
+    public long getLongValue(String key, Long defaultValue) {
         return LangUtil.parseLong(configuration.getProperty(key), defaultValue);
     }
 
-    public double getLongValue(String key) {
+    public long getLongValue(String key) {
         return LangUtil.parseLong(configuration.getProperty(key));
     }
 

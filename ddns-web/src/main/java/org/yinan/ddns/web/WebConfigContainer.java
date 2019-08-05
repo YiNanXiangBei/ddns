@@ -2,17 +2,17 @@ package org.yinan.ddns.web;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yinan.ddns.common.config.Config;
 import org.yinan.ddns.common.container.Container;
 import org.yinan.ddns.web.config.BaseConfig;
 import org.yinan.ddns.web.routes.BaseRouteConfig;
@@ -68,6 +68,8 @@ public class WebConfigContainer implements Container {
                         //主要作用是支持异步发送大的码流(例如大文件传输),但不占用过多的内存,防止JAVA内存溢出
                         pipeline.addLast(new ChunkedWriteHandler());
                         pipeline.addLast(new HttpRequestHandler());
+                        pipeline.addLast(new WebSocketServerProtocolHandler(Config.getInstance().getStringValue("config.websocket.uri")));
+                        pipeline.addLast(new WebSocketHandler());
                     }
                 });
 
@@ -81,6 +83,7 @@ public class WebConfigContainer implements Container {
 
         //初始化整个web应用，将所有的url全部映射完成
         RoutesManager.INSTANCE.activeRouteConfigs();
+
     }
 
     @Override

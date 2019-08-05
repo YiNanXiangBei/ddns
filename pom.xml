@@ -44,6 +44,7 @@
         <module>ddns-common</module>
         <module>ddns-web</module>
         <module>ddns-server</module>
+        <module>ddns-monitor</module>
     </modules>
     <build>
         <plugins>

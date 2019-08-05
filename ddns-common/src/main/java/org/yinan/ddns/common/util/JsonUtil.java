@@ -9,14 +9,17 @@ import com.google.gson.reflect.TypeToken;
  */
 public class JsonUtil {
 
+    /**
+     * json字符串转换aunt成java对象
+     * @param json
+     * @param typeToken
+     * @param <T>
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static <T> T json2object(String json, TypeToken<T> typeToken) {
-        try {
-            Gson gson = new Gson();
-            return (T) gson.fromJson(json, typeToken.getType());
-        } catch (Exception e) {
-        }
-        return null;
+        Gson gson = new Gson();
+        return (T) gson.fromJson(json, typeToken.getType());
     }
 
     /**

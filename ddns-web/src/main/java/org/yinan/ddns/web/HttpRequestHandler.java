@@ -7,6 +7,7 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedNioFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yinan.ddns.common.config.Config;
 import org.yinan.ddns.common.util.JsonUtil;
 import org.yinan.ddns.web.middleware.MiddlewareManager;
 import org.yinan.ddns.web.response.ObjectMethod;
@@ -48,6 +49,10 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
      */
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest request) {
+        if (Config.getInstance().getStringValue("config.websocket.uri", "/ws").equals(request.uri())) {
+            channelHandlerContext.fireChannelRead(request.retain());
+            return;
+        }
         //预先就进行拦截器部分处理
         ResponseInfo responseInfo = ResponseInfo.build(ResponseInfo.CODE_API_NOT_FOUND, "request invalid");
         ResponseInfo middlewareResult =  MiddlewareManager.run(request);
