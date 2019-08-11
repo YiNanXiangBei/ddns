@@ -6,6 +6,7 @@ import com.codahale.metrics.MetricRegistry;
 import org.yinan.ddns.common.config.Config;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * @author yinan
@@ -37,16 +38,17 @@ public class MetricsManager {
     }
 
     public static void init(MetricRegistry metrics) {
-        String[] countersName = Config.getInstance().getStringValue("monitor.metric.counter",
-                "counter").split(",");
-        String[] metersName = Config.getInstance().getStringValue("monitor.metric.meter",
-                "meter").split(",");
-        String[] gaugesName = Config.getInstance().getStringValue("monitor.metric.gauge",
-                "meter").split(",");
-        String[] hisesName = Config.getInstance().getStringValue("monitor.metric.histogram",
-                "historam").split(",");
-        String[] timersName = Config.getInstance().getStringValue("monitor.metric.timer",
-                "timer").split(",");
+
+        String[] countersName = Optional.ofNullable(Config.getInstance().getStringValue("monitor.metric.counter",
+                "counter")).orElse(",").split(",");
+        String[] metersName = Optional.ofNullable(Config.getInstance().getStringValue("monitor.metric.meter",
+                "meter")).orElse(",").split(",");
+        String[] gaugesName = Optional.ofNullable(Config.getInstance().getStringValue("monitor.metric.gauge",
+                "meter")).orElse(",").split(",");
+        String[] hisesName = Optional.ofNullable(Config.getInstance().getStringValue("monitor.metric.histogram",
+                "historam")).orElse(",").split(",");
+        String[] timersName = Optional.ofNullable(Config.getInstance().getStringValue("monitor.metric.timer",
+                "timer")).orElse(",").split(",");
         manager.initMetrics(metrics);
         Arrays.stream(countersName).forEach(name -> manager.initCounter(name));
         Arrays.stream(metersName).forEach(name -> manager.initMeter(name));

@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 import org.yinan.ddns.common.config.Config;
 import org.yinan.ddns.common.container.Container;
 import org.yinan.ddns.monitor.cache.AbstractCache;
-import org.yinan.ddns.monitor.callback.ICallback;
 import org.yinan.ddns.monitor.entity.Counter;
-import org.yinan.ddns.monitor.entity.Meter;
 import org.yinan.ddns.monitor.metrics.MetricsManager;
 import org.yinan.ddns.monitor.task.SynchronousTask;
 
@@ -23,13 +21,11 @@ public class MonitorContainer implements Container {
 
     private AbstractCache cache;
 
-    private ICallback callback;
 
     private Gson gson;
 
-    public MonitorContainer(AbstractCache cache, ICallback callback) {
+    public MonitorContainer(AbstractCache cache) {
         this.cache = cache;
-        this.callback = callback;
         this.gson = new Gson();
     }
 
@@ -69,6 +65,9 @@ public class MonitorContainer implements Container {
      */
     @SuppressWarnings("unchecked")
     private void execTask() {
+        if (Config.getInstance().getStringValue("monitor.metric.counter") == null) {
+
+        }
         ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(5);
         threadPool.scheduleAtFixedRate(new SynchronousTask(cache), 3,
                 Config.getInstance().getLongValue("monitor.metric.rate", 5L), TimeUnit.SECONDS);

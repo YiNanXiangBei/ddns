@@ -1,10 +1,5 @@
 package org.yinan.ddns.monitor.metrics;
 
-/**
- * @author yinan
- * @date 19-8-1
- */
-
 import com.codahale.metrics.*;
 import com.codahale.metrics.json.MetricsModule;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,8 +12,9 @@ import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * @author yinan
  * A metrics reporter for Metrics that dumps metrics periodically into
- * a file in JSON format.
+ *  * a file in JSON format.
  */
 public class JsonReporter extends ScheduledReporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonReporter.class);
@@ -35,7 +31,8 @@ public class JsonReporter extends ScheduledReporter {
 
     @Override
     public void start(long period, TimeUnit unit) {
-        jsonWriter = new ObjectMapper().registerModule(new MetricsModule(TimeUnit.MILLISECONDS,
+        //MetricsModule 第一个参数在meter中有使用到，如果需要使用meter的平均速率，这里单位最小为second
+        jsonWriter = new ObjectMapper().registerModule(new MetricsModule(TimeUnit.SECONDS,
                 TimeUnit.MILLISECONDS, false)).writerWithDefaultPrettyPrinter();
         super.start(period, unit);
     }

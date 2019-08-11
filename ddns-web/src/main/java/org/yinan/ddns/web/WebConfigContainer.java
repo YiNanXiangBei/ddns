@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yinan.ddns.common.config.Config;
 import org.yinan.ddns.common.container.Container;
+import org.yinan.ddns.web.callback.IWebSocketCompleteCallback;
 import org.yinan.ddns.web.config.BaseConfig;
 import org.yinan.ddns.web.routes.BaseRouteConfig;
 import org.yinan.ddns.web.routes.IRouteConfig;
@@ -32,6 +33,8 @@ public class WebConfigContainer implements Container {
 
     private NioEventLoopGroup bossGroup;
 
+    private IWebSocketCompleteCallback webSocketCallback;
+
     public WebConfigContainer() {
 
         //配置管理，并发量很小，使用单线程处理网络事件
@@ -40,8 +43,19 @@ public class WebConfigContainer implements Container {
         RoutesManager.INSTANCE.addRouteConfig(new BaseRouteConfig());
     }
 
+    public WebConfigContainer(IWebSocketCompleteCallback webSocketCallback) {
+        this();
+        this.webSocketCallback = webSocketCallback;
+    }
+
     public WebConfigContainer(List<IRouteConfig> routeConfigs) {
         this();
+        RoutesManager.INSTANCE.addRouteConfig(routeConfigs);
+    }
+
+    public WebConfigContainer(List<IRouteConfig> routeConfigs, IWebSocketCompleteCallback webSocketCallback) {
+        this();
+        this.webSocketCallback = webSocketCallback;
         RoutesManager.INSTANCE.addRouteConfig(routeConfigs);
     }
 
@@ -69,7 +83,11 @@ public class WebConfigContainer implements Container {
                         pipeline.addLast(new ChunkedWriteHandler());
                         pipeline.addLast(new HttpRequestHandler());
                         pipeline.addLast(new WebSocketServerProtocolHandler(Config.getInstance().getStringValue("config.websocket.uri")));
-                        pipeline.addLast(new WebSocketHandler());
+                        if (webSocketCallback == null) {
+                            pipeline.addLast(new WebSocketHandler());
+                        } else {
+                            pipeline.addLast(new WebSocketHandler(webSocketCallback));
+                        }
                     }
                 });
 

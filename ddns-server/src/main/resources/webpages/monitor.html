@@ -1,10 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>服务器监控</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>动态域名解析设置</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
 </head>
-<body>
-服务器监控页面
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="ibox float-e-margins">
+        <div class="ibox-content">
+            <div class="row row-lg">
+                <div class="col-sm-12">
+                    <div class="example-wrap">
+                        <h4 class="example-title">服务器监控</h4>
+                        <div class="row row-sm text-center">
+                            <div class="col-xs-2">
+                                <div class="panel padder-v item bg-primary">
+                                    <div class="h1 text-fff font-thin h1" id="all-request">0</div>
+                                    <span class="text-muted text-xs">服务总请求量</span>
+                                    <div class="top text-right w-full">
+                                        <i class="fa text-warning m-r-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-2">
+                                <div class="panel padder-v item bg-info">
+                                    <div class="h1 text-fff font-thin h1">521</div>
+                                    <span class="text-muted text-xs">服务总应答量</span>
+                                    <div class="top text-right w-full">
+                                        <i class="fa text-warning m-r-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-2">
+                                <div class="panel padder-v item bg-primary">
+                                    <div class="h1 text-fff font-thin h1">521</div>
+                                    <span class="text-muted text-xs">查询上游总次数</span>
+                                    <div class="top text-right w-full">
+                                        <i class="fa text-warning m-r-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-2">
+                                <div class="panel padder-v item bg-info">
+                                    <div class="h1 text-fff font-thin h1">129</div>
+                                    <span class="text-muted text-xs">域名缓存量</span>
+                                    <div class="top text-right w-full">
+                                        <i class="fa text-warning m-l-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-2">
+                                <div class="panel padder-v item bg-primary">
+                                    <div class="h1 text-fff font-thin h1" id="unauthority_request">0</div>
+                                    <span class="text-muted text-xs">无效请求数</span>
+                                    <div class="top text-right w-full">
+                                        <i class="fa text-warning m-r-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title" style="border-bottom:none;background:#fff;">
+                            <h5>平均请求</h5>
+                        </div>
+                        <div class="ibox-content" style="border-top:none;">
+                            <div id="container" style="min-width:400px;height:400px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 </body>
+
+<!-- 全局js -->
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js?v=3.3.6"></script>
+
+<!-- Flot -->
+<script src="https://code.highcharts.com.cn/highcharts/highcharts.js"></script>
+<script src="https://code.highcharts.com.cn/highcharts/modules/exporting.js"></script>
+<script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+
+<script src="js/plugins/websocket/reconnecting-websocket.min.js"></script>
+<script src="js/ddns/ddns_monitor.js"></script>
+
 </html>

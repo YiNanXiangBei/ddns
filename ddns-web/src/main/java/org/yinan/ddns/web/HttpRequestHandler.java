@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yinan.ddns.common.config.Config;
 import org.yinan.ddns.common.util.JsonUtil;
+import org.yinan.ddns.monitor.metrics.MetricsManager;
 import org.yinan.ddns.web.middleware.MiddlewareManager;
 import org.yinan.ddns.web.response.ObjectMethod;
 import org.yinan.ddns.web.response.ResponseInfo;
@@ -49,15 +50,19 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
      */
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest request) {
-        if (Config.getInstance().getStringValue("config.websocket.uri", "/ws").equals(request.uri())) {
-            channelHandlerContext.fireChannelRead(request.retain());
-            return;
-        }
         //预先就进行拦截器部分处理
         ResponseInfo responseInfo = ResponseInfo.build(ResponseInfo.CODE_API_NOT_FOUND, "request invalid");
         ResponseInfo middlewareResult =  MiddlewareManager.run(request);
         //拦截器没有结果，说明拦截器验证通过
-        if (middlewareResult == null) {
+        if (middlewareResult != null) {
+            MetricsManager.newInstance().inc("unauthority_request");
+            responseInfo = middlewareResult;
+            responseInfo.headers(HttpHeaderNames.CONTENT_TYPE, "Application/json;charset=utf-8");
+        } else {
+            if (Config.getInstance().getStringValue("config.websocket.uri", "/ws").equals(request.uri())) {
+                channelHandlerContext.fireChannelRead(request.retain());
+                return;
+            }
             try {
                 URI uri = new URI(request.uri());
                 logger.info("received request: [{}], type: [{}]", uri.getPath(), request.method());
@@ -90,9 +95,6 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 responseInfo.headers(HttpHeaderNames.CONTENT_TYPE, "Application/json;charset=utf-8");
             }
 
-        } else {
-            responseInfo = middlewareResult;
-            responseInfo.headers(HttpHeaderNames.CONTENT_TYPE, "Application/json;charset=utf-8");
         }
         outputContent(channelHandlerContext, request, responseInfo.getCode() / 100, responseInfo,
                 "Application/json;charset=utf-8");

@@ -9,10 +9,10 @@ import org.yinan.ddns.monitor.container.MonitorContainer;
 import org.yinan.ddns.monitor.metrics.JsonReporter;
 import org.yinan.ddns.monitor.metrics.MetricsManager;
 import org.yinan.ddns.server.callback.FrontCallback;
+import org.yinan.ddns.server.callback.WebSocketCallback;
 import org.yinan.ddns.server.routes.DDNSRouteConfig;
 import org.yinan.ddns.web.WebConfigContainer;
 import org.yinan.ddns.web.routes.RoutesManager;
-
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,17 +39,15 @@ public class DDNSApplication {
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .build();
         reporter.start(1, TimeUnit.SECONDS);
+
         MetricsManager.init(registry);
 
-        new MonitorContainer(cache, frontCallback).start();
-
-
-
+        new MonitorContainer(cache).start();
 
     }
 
     private static void webInit() {
         RoutesManager.INSTANCE.addRouteConfig(new DDNSRouteConfig());
-        new WebConfigContainer().start();
+        new WebConfigContainer(new WebSocketCallback()).start();
     }
 }

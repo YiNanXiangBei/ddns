@@ -42,55 +42,45 @@ public class MetricCallback implements ICallback<String> {
     @Override
     public void call(String message) {
         Metric metric = gson.fromJson(message, Metric.class);
-        syncCounterCache(message, metric.getCounters());
-        syncMeterCache(message, metric.getMeters());
-        syncGaugeCache(message, metric.getGauges());
-        syncHistogramCache(message, metric.getHistograms());
-        syncTimerCache(message, metric.getTimers());
+        syncCounterCache(metric.getCounters());
+        syncMeterCache(metric.getMeters());
+        syncGaugeCache(metric.getGauges());
+        syncHistogramCache(metric.getHistograms());
+        syncTimerCache(metric.getTimers());
     }
 
     @SuppressWarnings("unchecked")
-    private void syncCache(String key, AbstractMe metric, String message) {
+    private void syncCache(String key, AbstractMe metric) {
+        String message = gson.toJson(metric);
         if (cache != null) {
-            cache.writingToCache(key, gson.toJson(metric));
+            cache.writingToCache(key, message);
         }
         if (callback != null) {
-            callback.call(message);
+            Message webMsg = new Message(key, message);
+            callback.call(webMsg.toString());
         }
     }
 
-    private void syncCounterCache(String message, Map<String, Counter> metrics) {
-        metrics.forEach((key, value) -> {
-            syncCache(key, value, message);
-        });
+    private void syncCounterCache(Map<String, Counter> metrics) {
+        metrics.forEach(this::syncCache);
+    }
+
+    private void syncMeterCache(Map<String, Meter> metrics) {
+        metrics.forEach(this::syncCache);
+    }
+
+    private void syncGaugeCache(Map<String, Gauge> metrics) {
+        metrics.forEach(this::syncCache);
 
     }
 
-    private void syncMeterCache(String message, Map<String, Meter> metrics) {
-        metrics.forEach((key, value) -> {
-            syncCache(key, value, message);
-        });
+    private void syncHistogramCache(Map<String, Histogram> metrics) {
+        metrics.forEach(this::syncCache);
 
     }
 
-    private void syncGaugeCache(String message, Map<String, Gauge> metrics) {
-        metrics.forEach((key, value) -> {
-            syncCache(key, value, message);
-        });
-
-    }
-
-    private void syncHistogramCache(String message, Map<String, Histogram> metrics) {
-        metrics.forEach((key, value) -> {
-            syncCache(key, value, message);
-        });
-
-    }
-
-    private void syncTimerCache(String message, Map<String, Timer> metrics) {
-        metrics.forEach((key, value) -> {
-            syncCache(key, value, message);
-        });
+    private void syncTimerCache(Map<String, Timer> metrics) {
+        metrics.forEach(this::syncCache);
 
     }
 
