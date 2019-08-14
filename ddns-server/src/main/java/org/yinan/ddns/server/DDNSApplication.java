@@ -10,6 +10,7 @@ import org.yinan.ddns.monitor.metrics.JsonReporter;
 import org.yinan.ddns.monitor.metrics.MetricsManager;
 import org.yinan.ddns.server.callback.FrontCallback;
 import org.yinan.ddns.server.callback.WebSocketCallback;
+import org.yinan.ddns.server.dns.DNSConfigContainer;
 import org.yinan.ddns.server.routes.DDNSRouteConfig;
 import org.yinan.ddns.web.WebConfigContainer;
 import org.yinan.ddns.web.routes.RoutesManager;
@@ -24,6 +25,8 @@ public class DDNSApplication {
         metricInit();
 
         webInit();
+
+        new DNSConfigContainer().start();
     }
 
     private static void metricInit() {
