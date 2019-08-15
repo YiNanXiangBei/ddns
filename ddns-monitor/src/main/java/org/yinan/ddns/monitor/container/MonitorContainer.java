@@ -65,9 +65,6 @@ public class MonitorContainer implements Container {
      */
     @SuppressWarnings("unchecked")
     private void execTask() {
-        if (Config.getInstance().getStringValue("monitor.metric.counter") == null) {
-
-        }
         ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(5);
         threadPool.scheduleAtFixedRate(new SynchronousTask(cache), 3,
                 Config.getInstance().getLongValue("monitor.metric.rate", 5L), TimeUnit.SECONDS);

@@ -1,5 +1,10 @@
 package org.yinan.ddns.common.util;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -28,7 +33,7 @@ public class CommonUtil {
 
 
     /**
-     * 为字符串添加日期后缀名
+     * 为字符串添加日期后缀名,针对数据进行操作
      */
     public static String[] appendDate(String[] fileNames) {
         String[] newFileNames = new String[fileNames.length];
@@ -40,9 +45,35 @@ public class CommonUtil {
         return newFileNames;
     }
 
+    /**
+     * 为字符串天剑日期后缀名，针对单个字符串
+     * @param fileName
+     * @return
+     */
     public static String appendDate(String fileName) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy_MM_dd");
         fileName = fileName + "_" + format.format(new Date());
         return fileName;
+    }
+
+    public static byte[] readFileFromResource(String fileName) throws IOException {
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(fileName);
+        RandomAccessFile accessFile = new RandomAccessFile(resource.getFile(), "r");
+        byte[] bytes = new byte[(int) accessFile.length()];
+        accessFile.read(bytes);
+        accessFile.close();
+        return bytes;
+    }
+
+    public static void writeFileToResource(String fileName, String value) throws IOException {
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(fileName);
+        RandomAccessFile accessFile = new RandomAccessFile(resource.getFile(), "rw");
+        long fileLength = accessFile.length();
+        accessFile.seek(fileLength);
+        if (fileLength != 0) {
+            value = System.getProperty("line.separator") + value;
+        }
+        accessFile.write(value.getBytes(Charset.forName("UTF-8")));
+        accessFile.close();
     }
 }

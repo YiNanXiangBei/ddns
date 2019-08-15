@@ -9,9 +9,17 @@ import io.netty.resolver.dns.DnsNameResolverBuilder;
 import io.netty.resolver.dns.SequentialDnsServerAddressStreamProvider;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import org.yinan.ddns.common.config.Config;
+import org.yinan.ddns.common.util.CommonUtil;
+import org.yinan.ddns.server.dns.Constant;
+import org.yinan.ddns.server.dns.DNSCache;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author yinan
@@ -47,15 +55,12 @@ public class DNSHandler extends SimpleChannelInboundHandler<DatagramDnsQuery> {
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         Channel channel = ctx.channel();
         dnsNameResolver = new DnsNameResolverBuilder()
                 .eventLoop(channel.eventLoop())
                 .channelType(NioDatagramChannel.class)
-                .nameServerProvider(new SequentialDnsServerAddressStreamProvider(
-                        new InetSocketAddress(InetAddress.getByName("114.114.114.114"), 53),
-                        new InetSocketAddress(InetAddress.getByName("8.8.8.8"), 53)
-                )).build();
+                .nameServerProvider(new SequentialDnsServerAddressStreamProvider(getAddress())).build();
     }
 
     @Override
@@ -78,5 +83,18 @@ public class DNSHandler extends SimpleChannelInboundHandler<DatagramDnsQuery> {
         if (ch.isActive()) {
             ch.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
         }
+    }
+
+    private List<InetSocketAddress> getAddress(){
+        List<String> resources =  (List<String>) DNSCache.get(Constant.DNS_FILE_NAME_KEY);
+        List<InetSocketAddress> addresses = new ArrayList<>();
+        resources.forEach(resource -> {
+            try {
+                addresses.add(new InetSocketAddress(InetAddress.getByName(resource), 53));
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        });
+        return addresses;
     }
 }
