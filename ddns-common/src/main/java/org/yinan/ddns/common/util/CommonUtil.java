@@ -1,6 +1,5 @@
 package org.yinan.ddns.common.util;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URL;
@@ -65,7 +64,7 @@ public class CommonUtil {
         return bytes;
     }
 
-    public static void writeFileToResource(String fileName, String value) throws IOException {
+    public static void appendFileToResource(String fileName, String value) throws IOException {
         URL resource = Thread.currentThread().getContextClassLoader().getResource(fileName);
         RandomAccessFile accessFile = new RandomAccessFile(resource.getFile(), "rw");
         long fileLength = accessFile.length();
@@ -76,4 +75,13 @@ public class CommonUtil {
         accessFile.write(value.getBytes(Charset.forName("UTF-8")));
         accessFile.close();
     }
+
+    public static void saveFileToResource(String fileName, String value) throws IOException {
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(fileName);
+        RandomAccessFile accessFile = new RandomAccessFile(resource.getFile(), "rw");
+        accessFile.setLength(0);
+        accessFile.write(value.getBytes(Charset.forName("UTF-8")));
+        accessFile.close();
+    }
+
 }

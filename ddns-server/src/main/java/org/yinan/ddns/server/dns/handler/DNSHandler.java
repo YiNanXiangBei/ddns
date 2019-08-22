@@ -6,20 +6,23 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.handler.codec.dns.*;
 import io.netty.resolver.dns.DnsNameResolver;
 import io.netty.resolver.dns.DnsNameResolverBuilder;
+import io.netty.resolver.dns.DnsNameResolverTimeoutException;
 import io.netty.resolver.dns.SequentialDnsServerAddressStreamProvider;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import org.yinan.ddns.common.config.Config;
-import org.yinan.ddns.common.util.CommonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yinan.ddns.monitor.metrics.MetricsManager;
 import org.yinan.ddns.server.dns.Constant;
 import org.yinan.ddns.server.dns.DNSCache;
+import org.yinan.ddns.server.dns.DNSConfigService;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author yinan
@@ -28,30 +31,42 @@ import java.util.List;
 public class DNSHandler extends SimpleChannelInboundHandler<DatagramDnsQuery> {
     private DnsNameResolver dnsNameResolver;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DNSHandler.class);
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramDnsQuery msg) {
-        DatagramDnsResponse response = new DatagramDnsResponse(msg.recipient(), msg.sender(), msg.id());
-        if (DnsOpCode.QUERY.equals(msg.opCode())) {
-            DefaultDnsQuestion dnsQuestion = msg.recordAt(DnsSection.QUESTION);
-            final io.netty.util.concurrent.Future<AddressedEnvelope<DnsResponse, InetSocketAddress>> dnsAnswer = dnsNameResolver.query(dnsQuestion);
-            dnsAnswer.addListener((GenericFutureListener<Future<AddressedEnvelope<DnsResponse, InetSocketAddress>>>) future -> {
-                final AddressedEnvelope<DnsResponse, InetSocketAddress> envelope = future.get();
-                response.addRecord(DnsSection.QUESTION, new DefaultDnsQuestion(dnsQuestion.name(), dnsQuestion.type()));
-
-                final DnsResponse dnsResponse = envelope.content();
-                final int answers = dnsResponse.count(DnsSection.ANSWER);
-                for (int i = 0; i < answers; i++) {
-                    response.addRecord(DnsSection.ANSWER, i, envelope.content().recordAt(DnsSection.ANSWER, i));
-                }
-
-                ctx.writeAndFlush(response).addListener((ChannelFutureListener) f -> {
-                    if (!f.isSuccess()) {
-                        f.channel().close();
+        DefaultDnsQuestion dnsQuestion = msg.recordAt(DnsSection.QUESTION);
+        if (DNSConfigService.containsDomain(dnsQuestion.name())) {
+            ctx.fireChannelRead(msg);
+        } else {
+            DatagramDnsResponse response = new DatagramDnsResponse(msg.recipient(), msg.sender(), msg.id());
+            if (DnsOpCode.QUERY.equals(msg.opCode())) {
+                MetricsManager.newInstance().inc("query_times");
+                final io.netty.util.concurrent.Future<AddressedEnvelope<DnsResponse, InetSocketAddress>> dnsAnswer = dnsNameResolver.query(dnsQuestion);
+                dnsAnswer.addListener((GenericFutureListener<Future<AddressedEnvelope<DnsResponse, InetSocketAddress>>>) future -> {
+                    try {
+                        final AddressedEnvelope<DnsResponse, InetSocketAddress> envelope = future.get(10, TimeUnit.SECONDS);
+                        response.addRecord(DnsSection.QUESTION, new DefaultDnsQuestion(dnsQuestion.name(), dnsQuestion.type()));
+                        final DnsResponse dnsResponse = envelope.content();
+                        final int answers = dnsResponse.count(DnsSection.ANSWER);
+                        if (answers == 0) {
+                            MetricsManager.newInstance().inc("invalid_request");
+                        }
+                        for (int i = 0; i < answers; i++) {
+                            response.addRecord(DnsSection.ANSWER, i, dnsResponse.recordAt(DnsSection.ANSWER, i));
+                        }
+                    } catch (Exception e) {
+                        LOGGER.warn("time out: {}", e.toString());
                     }
-                });
-            });
-        }
 
+                    ctx.writeAndFlush(response).addListener((ChannelFutureListener) f -> {
+                        if (!f.isSuccess()) {
+                            f.channel().close();
+                        }
+                    });
+                });
+            }
+        }
     }
 
     @Override
@@ -92,7 +107,7 @@ public class DNSHandler extends SimpleChannelInboundHandler<DatagramDnsQuery> {
             try {
                 addresses.add(new InetSocketAddress(InetAddress.getByName(resource), 53));
             } catch (UnknownHostException e) {
-                e.printStackTrace();
+                LOGGER.error("analysis address config files error: {}", e);
             }
         });
         return addresses;

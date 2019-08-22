@@ -55,7 +55,6 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         ResponseInfo middlewareResult =  MiddlewareManager.run(request);
         //拦截器没有结果，说明拦截器验证通过
         if (middlewareResult != null) {
-            MetricsManager.newInstance().inc("unauthority_request");
             responseInfo = middlewareResult;
             responseInfo.headers(HttpHeaderNames.CONTENT_TYPE, "Application/json;charset=utf-8");
         } else {
@@ -94,7 +93,8 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 responseInfo = ResponseInfo.build(ResponseInfo.CODE_SYSTEM_ERROR, "server error");
                 responseInfo.headers(HttpHeaderNames.CONTENT_TYPE, "Application/json;charset=utf-8");
             }
-
+            //todo 后续需要将返回类型修改成常用类型，然后经过afterRun方法进行包装之后统一返回
+            MiddlewareManager.afterRun(request);
         }
         outputContent(channelHandlerContext, request, responseInfo.getCode() / 100, responseInfo,
                 "Application/json;charset=utf-8");
@@ -102,7 +102,6 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     private void outputContent(ChannelHandlerContext ctx, FullHttpRequest request, int code, ResponseInfo responseInfo,
                                String mimeType) {
-
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(code),
                 Unpooled.wrappedBuffer(JsonUtil.object2json(responseInfo).getBytes(Charset.forName("UTF-8"))));
         //设置返回中的headers

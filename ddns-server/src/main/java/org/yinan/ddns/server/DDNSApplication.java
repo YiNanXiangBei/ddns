@@ -11,8 +11,10 @@ import org.yinan.ddns.monitor.metrics.MetricsManager;
 import org.yinan.ddns.server.callback.FrontCallback;
 import org.yinan.ddns.server.callback.WebSocketCallback;
 import org.yinan.ddns.server.dns.DNSConfigContainer;
+import org.yinan.ddns.server.middleware.DDNSMiddleware;
 import org.yinan.ddns.server.routes.DDNSRouteConfig;
 import org.yinan.ddns.web.WebConfigContainer;
+import org.yinan.ddns.web.middleware.MiddlewareManager;
 import org.yinan.ddns.web.routes.RoutesManager;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +26,7 @@ public class DDNSApplication {
     public static void main(String[] args) {
         metricInit();
 
+        MiddlewareManager.addMiddleware(new DDNSMiddleware());
         webInit();
 
         new DNSConfigContainer().start();

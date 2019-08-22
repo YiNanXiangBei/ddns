@@ -10,7 +10,7 @@
     var $tableEvent = $('#exampleTableEvents');
 
       $tableEvent.bootstrapTable({
-        url: "js/ddns/ddns-config.json",
+        url: "/ddns-config",
         search: true,
         pagination: true,
         showRefresh: true,

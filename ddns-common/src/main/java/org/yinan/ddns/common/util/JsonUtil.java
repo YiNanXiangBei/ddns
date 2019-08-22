@@ -1,6 +1,7 @@
 package org.yinan.ddns.common.util;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -26,7 +27,7 @@ public class JsonUtil {
      * java对象转为json对象
      */
     public static String object2json(Object obj) {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(obj);
     }
 

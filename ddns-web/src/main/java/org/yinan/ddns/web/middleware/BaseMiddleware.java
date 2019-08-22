@@ -83,4 +83,9 @@ public class BaseMiddleware implements IRequestMiddleware{
 
     }
 
+    @Override
+    public void afterRequest(FullHttpRequest request) throws Exception {
+
+    }
+
 }

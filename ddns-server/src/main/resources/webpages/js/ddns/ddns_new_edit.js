@@ -11,11 +11,58 @@ $(function () {
         }
     });
 
+    $('#submit').on('click', function () {
+        var module = getModuleVal();
+        var startVal = getStartVal();
+        var domainVal = getDomainVal();
+        var endVal = getEndVal();
+        var modelVal = getModelVal();
+        var oneData = {};
+        if (module === '2') {
+            //多ip
+            oneData = {
+                "address":startVal + ' - ' + endVal,
+                "domain":domainVal,
+                "model":parseInt(modelVal)
+            }
+        } else if (module === '1') {
+            //单ip
+            oneData = {
+                "address":startVal,
+                "domain":domainVal,
+                "model":4
+            }
+        }
+        var editId = getQueryString("editId");
+        var data = {};
+        if (editId === null) {
+            //新增页面保存
+            oneData["enable"] =  1;
+            data['config'] = oneData;
+            send(data, "/ddns-config/save", 'post');
+        } else {
+            //编辑页面保存
+            var message = JSON.parse(localStorage.getItem("message"));
+            oneData["id"] = message[0].id;
+            oneData["enable"] = message[0].enable;
+            var dataArray = [];
+            dataArray.push(oneData);
+            data['config'] = dataArray;
+            send(data, '/ddns-config/update', 'post');
+        }
+        returnSettingPage();
+    });
+
     $('#cancel').on('click', function () {
-        localStorage.setItem('message', []);
-        window.location.href = 'ddns_setting.html';
+        returnSettingPage();
     })
 });
+
+function returnSettingPage() {
+    localStorage.setItem('message', []);
+    window.location.href = 'ddns_setting.html';
+}
+
 function init() {
     var editId = getQueryString("editId");
     if (editId === null) {
@@ -55,6 +102,22 @@ function init() {
     }
 }
 
+var send = function (data, url, type) {
+    $.ajax({
+        url: url,
+        type: type,
+        data: JSON.stringify(data),
+        dataType: 'json',
+        success: function (message) {
+            $.tips('保存成功！', 1000);
+        },
+        error: function (error) {
+            $.alert("保存失败，请联系管理员！");
+        }
+    })
+};
+
+
 /**
  * @return {string}
  */
@@ -93,6 +156,26 @@ function domainValue(domain) {
 
 function moduleValue(module) {
     $('#select-list').val(module);
+}
+
+function getStartVal() {
+    return $('#start-value').val();
+}
+
+function getEndVal() {
+    return $('#end-value').val();
+}
+
+function getDomainVal() {
+    return $('#domain').val();
+}
+
+function getModuleVal() {
+    return $('#select-list').val();
+}
+
+function getModelVal() {
+    return $("input[name='optionsRadios']:checked").val();
 }
 
 function ipValue(ipVal) {

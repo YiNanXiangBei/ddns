@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.yinan.ddns.web.exception.ContextException;
 import org.yinan.ddns.web.response.ResponseInfo;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -48,6 +49,20 @@ public class MiddlewareManager {
                     return ResponseInfo.build(((ContextException) ex).getCode(), ex.getMessage());
                 }
                 logger.error("request error: {}", ex.getMessage());
+            }
+        }
+        return null;
+    }
+
+    public static ResponseInfo afterRun(FullHttpRequest request) {
+        List<IRequestMiddleware> reverseList = new CopyOnWriteArrayList<>(middlewares);
+        Collections.reverse(reverseList);
+        for (IRequestMiddleware middleware : reverseList) {
+            try {
+                middleware.afterRequest(request);
+            } catch (Exception ex) {
+                logger.error("request：[{}] , middleware: {} after run error!", request.uri(), middleware.toString());
+                return ResponseInfo.build(ResponseInfo.CODE_SYSTEM_ERROR, ex.getMessage());
             }
         }
         return null;

@@ -16,4 +16,11 @@ public interface IRequestMiddleware {
      */
     void preRequest(FullHttpRequest request) throws Exception;
 
+    /**
+     * 请求结束之后的包装
+     * @param request 请求
+     * @throws Exception
+     */
+    void afterRequest(FullHttpRequest request) throws Exception;
+
 }

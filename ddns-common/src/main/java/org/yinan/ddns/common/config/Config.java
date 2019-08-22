@@ -33,7 +33,7 @@ public class Config {
     }
 
     private void initConfig(String configFile) {
-        InputStream is = Config.class.getClassLoader().getResourceAsStream(configFile);
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(configFile);
         try {
             configuration.load(is);
             is.close();

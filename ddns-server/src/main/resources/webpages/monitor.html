@@ -25,7 +25,7 @@
                         <div class="row row-sm text-center">
                             <div class="col-xs-2">
                                 <div class="panel padder-v item bg-primary">
-                                    <div class="h1 text-fff font-thin h1" id="all-request">0</div>
+                                    <div class="h1 text-fff font-thin h1" id="total-request">0</div>
                                     <span class="text-muted text-xs">服务总请求量</span>
                                     <div class="top text-right w-full">
                                         <i class="fa text-warning m-r-sm"></i>
@@ -34,8 +34,8 @@
                             </div>
                             <div class="col-xs-2">
                                 <div class="panel padder-v item bg-info">
-                                    <div class="h1 text-fff font-thin h1">521</div>
-                                    <span class="text-muted text-xs">服务总应答量</span>
+                                    <div class="h1 text-fff font-thin h1" id="total-response">0</div>
+                                    <span class="text-muted text-xs">服务总应答量(api)</span>
                                     <div class="top text-right w-full">
                                         <i class="fa text-warning m-r-sm"></i>
                                     </div>
@@ -43,8 +43,8 @@
                             </div>
                             <div class="col-xs-2">
                                 <div class="panel padder-v item bg-primary">
-                                    <div class="h1 text-fff font-thin h1">521</div>
-                                    <span class="text-muted text-xs">查询上游总次数</span>
+                                    <div class="h1 text-fff font-thin h1" id="query-times">0</div>
+                                    <span class="text-muted text-xs">DNS查询上游总次数</span>
                                     <div class="top text-right w-full">
                                         <i class="fa text-warning m-r-sm"></i>
                                     </div>
@@ -52,19 +52,19 @@
                             </div>
                             <div class="col-xs-2">
                                 <div class="panel padder-v item bg-info">
-                                    <div class="h1 text-fff font-thin h1">129</div>
-                                    <span class="text-muted text-xs">域名缓存量</span>
+                                    <div class="h1 text-fff font-thin h1" id="invalid-request">0</div>
+                                    <span class="text-muted text-xs">DDNS无效请求数</span>
                                     <div class="top text-right w-full">
-                                        <i class="fa text-warning m-l-sm"></i>
+                                        <i class="fa text-warning m-r-sm"></i>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xs-2">
                                 <div class="panel padder-v item bg-primary">
-                                    <div class="h1 text-fff font-thin h1" id="unauthority_request">0</div>
-                                    <span class="text-muted text-xs">无效请求数</span>
+                                    <div class="h1 text-fff font-thin h1" id="personal-ddns-request">0</div>
+                                    <span class="text-muted text-xs">自定义DDNS请求量</span>
                                     <div class="top text-right w-full">
-                                        <i class="fa text-warning m-r-sm"></i>
+                                        <i class="fa text-warning m-l-sm"></i>
                                     </div>
                                 </div>
                             </div>
@@ -74,7 +74,7 @@
                 <div class="col-sm-12">
                     <div class="ibox float-e-margins">
                         <div class="ibox-title" style="border-bottom:none;background:#fff;">
-                            <h5>平均请求</h5>
+                            <h5>平均每分钟服务请求量</h5>
                         </div>
                         <div class="ibox-content" style="border-top:none;">
                             <div id="container" style="min-width:400px;height:400px"></div>

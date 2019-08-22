@@ -15,7 +15,7 @@ $(function () {
             }
         },
         title: {
-            text: '实时请求数据展示'
+            text: '平均每分钟服务请求量'
         },
         xAxis: {
             type: 'datetime',
@@ -28,9 +28,9 @@ $(function () {
         },
         yAxis: {
             min: 0,
-            max: 1,
+            max: 10,
             title: {
-                text: "实时请求数据量"
+                text: "平均每分钟服务请求量"
             }
         },
         legend: {
@@ -60,14 +60,23 @@ $(function () {
         var data = JSON.parse(message.data);
         // console.log(data);
         switch (data['name']) {
-            case 'yinan_counter':
+            case 'total_request':
                 solveAllRequest(data['value']['count']);
                 break;
-            case 'unauthority_request':
-                solveUnAuthorityRequest(data['value']['count']);
+            case 'total_response':
+                solveTotalResponse(data['value']['count']);
                 break;
-            case 'test_like':
-                solveTestLike(chart, data['value']['m1_rate']);
+            case 'total_request_average':
+                solveAveRequest(chart, data['value']['m1_rate']);
+                break;
+            case 'query_times':
+                solveDDNSQueryTimes(data['value']['count']);
+                break;
+            case 'invalid_request':
+                solveDDNSInvalidRequest(data['value']['count']);
+                break;
+            case 'personal_ddns_request':
+                personalDDNSRequest(data['value']['count']);
                 break;
             default:
                 break;
@@ -86,7 +95,7 @@ $(function () {
         $.ajax({
             url: '/getMeter',
             data: {
-                "meterName": "test_like",
+                "meterName": "total_request_average",
                 "rateName": "m1_rate"
             },
             async: false,
@@ -105,15 +114,26 @@ $(function () {
 
 //服务有效请求数
 function solveAllRequest(val) {
-    $('#all-request').text(val);
+    $('#total-request').text(val);
 }
 //总无效请求数
-function solveUnAuthorityRequest(val) {
-    $('#unauthority_request').text(val);
+function solveTotalResponse(val) {
+    $('#total-response').text(val);
 }
 
 //实时请求数据展示
-function solveTestLike(chart, val) {
+function solveAveRequest(chart, val) {
     chart.series[0].addPoint([new Date().getTime(), Math.round(val*100)/100], true, false);
 }
 
+function solveDDNSQueryTimes(val) {
+    $('#query-times').text(val);
+}
+
+function solveDDNSInvalidRequest(val) {
+    $('#invalid-request').text(val);
+}
+
+function personalDDNSRequest(val) {
+    $('#personal-ddns-request').text(val);
+}

@@ -8,4 +8,6 @@ public class Constant {
 
     public static final String DNS_FILE_NAME_KEY = "dns_file_name";
 
+    public static final String DNS_CUSTOMER_CONFIG_KEY = "dns_config";
+
 }
