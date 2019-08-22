@@ -29,22 +29,27 @@ $(function () {
         var data = {
             'host' : $('#address').val()
         };
-        send(data, "/update-server-host", "post", $server.bootstrapTable('refresh'));
+        send(data, "/update-server-host", "post", $server);
 
     });
 
 
 });
 
-function send(data, url, type, callback) {
+function send(data, url, type, server) {
     $.ajax({
         url: url,
         type: type,
         data: JSON.stringify(data),
         dataType: 'json',
         success: function (message) {
-            $.tips('更新成功！', 1000);
-            callback();
+            if ('host is duplicate!' === message['message']) {
+                $.alert("数据已经存在！");
+            } else {
+                $.tips('更新成功！', 1000);
+                server.bootstrapTable('refresh');
+            }
+
         },
         error: function (error) {
             $.alert("保存失败，请联系管理员！");
