@@ -1,9 +1,7 @@
 package org.yinan.ddns.web.routes;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author yinan
@@ -11,11 +9,18 @@ import java.io.IOException;
  */
 public class BaseRouteConfig implements IRouteConfig {
 
-    private final static String PACKAGE_NAME = "org.yinan.ddns.web.controller";
+    private final static String BASE_PACKAGE_NAME = "org.yinan.ddns.web.controller";
 
     @Override
-    public void init() throws IOException, ClassNotFoundException {
-        init0(PACKAGE_NAME);
+    public void init(List<String> packageNames) {
+        packageNames.add(BASE_PACKAGE_NAME);
+        packageNames.forEach(packageName -> {
+            try {
+                init0(packageName);
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 }

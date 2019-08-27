@@ -100,7 +100,7 @@ public class WebConfigContainer implements Container {
         }
 
         //初始化整个web应用，将所有的url全部映射完成
-        RoutesManager.INSTANCE.activeRouteConfigs();
+        RoutesManager.INSTANCE.activeConfigs();
 
     }
 

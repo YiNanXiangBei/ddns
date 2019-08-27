@@ -12,6 +12,11 @@ $(function () {
     });
 
     $('#submit').on('click', function () {
+        var $validate = $('#new-ddns-setting');
+        $validate.data('bootstrapValidator').validate();
+        if(!$validate.data('bootstrapValidator').isValid()){
+            return ;
+        }
         var module = getModuleVal();
         var startVal = getStartVal();
         var domainVal = getDomainVal();

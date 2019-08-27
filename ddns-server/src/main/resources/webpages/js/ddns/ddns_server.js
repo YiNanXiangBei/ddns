@@ -21,11 +21,22 @@ $(function () {
             {
                 field: 'host',
                 title: '服务器地址'
+            },
+            {
+                title: '操作',
+                formatter: function (value, row, index) {
+                    return '<button type="button" class="btn btn-primary btn-sm" onclick="del(\'' + row.host + '\')">删除</button>';
+                }
             }
         ]
     });
 
     $('#submit-host').on('click', function () {
+        var $validate = $('#ddns-server');
+        $validate.data('bootstrapValidator').validate();
+        if(!$validate.data('bootstrapValidator').isValid()){
+            return ;
+        }
         var data = {
             'host' : $('#address').val()
         };
@@ -55,4 +66,35 @@ function send(data, url, type, server) {
             $.alert("保存失败，请联系管理员！");
         }
     })
+}
+
+function del(host) {
+    $.confirm('是否删除上游服务地址[' + host + ']?',function(e){
+        if (e) {
+            var data = {
+                'host': host
+            };
+            $.ajax({
+                url: '/del/server-host',
+                type: 'post',
+                data: JSON.stringify(data),
+                dataType: 'json',
+                success: function (message) {
+                    if (20000 === message['code']) {
+                        $.tips('删除成功！', 1000);
+                        $('#server-list').bootstrapTable('refresh');
+                    } else if (50000 === message['code']) {
+                        $.alert("删除失败，请联系管理员！");
+                    }
+                },
+                error: function (error) {
+                    $.alert("保存失败，请联系管理员！");
+                }
+            })
+        }
+        //点击确定或取消后的回调函数，点击确定e = true，点击取消e = false
+        //return false 可以阻止对话框关闭
+        //this 指向弹窗对象
+    }).ok('确定').cancel('取消');
+
 }

@@ -30,7 +30,7 @@ public interface IRouteConfig {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    void init() throws IOException, ClassNotFoundException;
+    void init(List<String> packageName) throws IOException, ClassNotFoundException;
 
 
     /**

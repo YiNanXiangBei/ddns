@@ -17,6 +17,8 @@ import org.yinan.ddns.common.container.Container;
 import org.yinan.ddns.common.util.CommonUtil;
 import org.yinan.ddns.server.dns.handler.CustomDNSHandler;
 import org.yinan.ddns.server.dns.handler.DNSHandler;
+import org.yinan.ddns.server.middleware.DDNSMiddleware;
+import org.yinan.ddns.web.middleware.MiddlewareManager;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -36,6 +38,7 @@ public class DNSConfigContainer implements Container {
     private static final String ADDRESS_FILE = Config.getInstance().getStringValue("dns.server.address-file");
 
     public DNSConfigContainer() {
+        MiddlewareManager.addMiddleware(new DDNSMiddleware());
         group = new NioEventLoopGroup();
         try {
             init();

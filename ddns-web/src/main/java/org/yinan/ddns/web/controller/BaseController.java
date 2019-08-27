@@ -2,10 +2,6 @@ package org.yinan.ddns.web.controller;
 
 import com.google.gson.reflect.TypeToken;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
-import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yinan.ddns.common.util.CookieUtil;
@@ -15,9 +11,7 @@ import org.yinan.ddns.web.annotation.PostMapping;
 import org.yinan.ddns.web.config.BaseConfig;
 import org.yinan.ddns.web.response.ResponseInfo;
 import org.yinan.ddns.web.session.SessionManager;
-
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author yinan

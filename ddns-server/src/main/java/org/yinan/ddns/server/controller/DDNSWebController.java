@@ -7,9 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yinan.ddns.common.config.Config;
 import org.yinan.ddns.common.util.CommonUtil;
-import org.yinan.ddns.common.util.CookieUtil;
 import org.yinan.ddns.common.util.JsonUtil;
-import org.yinan.ddns.monitor.metrics.MetricsManager;
 import org.yinan.ddns.server.dns.Constant;
 import org.yinan.ddns.server.dns.DNSCache;
 import org.yinan.ddns.server.dns.DNSConfigService;
@@ -17,12 +15,10 @@ import org.yinan.ddns.web.annotation.Controller;
 import org.yinan.ddns.web.annotation.GetMapping;
 import org.yinan.ddns.web.annotation.PostMapping;
 import org.yinan.ddns.web.response.ResponseInfo;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -76,12 +72,18 @@ public class DDNSWebController {
             CommonUtil.appendFileToResource(DNS_CONFIG_FILE, host);
         } catch (IOException e) {
             LOGGER.error("write file meet some error: {}", e);
+            return ResponseInfo.build(ResponseInfo.CODE_SYSTEM_ERROR, "save file failed!");
         }
         hosts.add(host);
         DNSCache.put(Constant.DNS_FILE_NAME_KEY, hosts);
         return ResponseInfo.build(ResponseInfo.CODE_OK, "success!");
     }
 
+    /**
+     * 获取所有上游dns服务器地址
+     * @param request
+     * @return
+     */
     @GetMapping("/server-host")
     public ResponseInfo getServerHost(FullHttpRequest request) {
         List<Map<String, String>> listHostMap = new ArrayList<>();
@@ -92,6 +94,34 @@ public class DDNSWebController {
             listHostMap.add(hostMap);
         }
         return ResponseInfo.build(ResponseInfo.CODE_OK, "success!", listHostMap);
+    }
+
+    /**
+     * 依据host删除相应数据
+     * @param request
+     * @return
+     */
+    @PostMapping("/del/server-host")
+    public ResponseInfo deleteServerHost(FullHttpRequest request) {
+        Map<String, String> params = getPostParams(request);
+        String host = params.get("host");
+        List<String> hosts =  new ArrayList<>((List<String>) DNSCache.get(Constant.DNS_FILE_NAME_KEY));
+        List<String> newHosts = hosts
+                .stream()
+                .filter(tmpHost -> !host.equals(tmpHost))
+                .collect(Collectors.toList());
+        StringBuilder builder = new StringBuilder(newHosts.get(0));
+        for (int i = 1; i < newHosts.size(); i++) {
+            builder.append(System.getProperty("line.separator")).append(newHosts.get(i));
+        }
+        try {
+            CommonUtil.saveFileToResource(DNS_CONFIG_FILE, builder.toString());
+        } catch (IOException e) {
+            LOGGER.error("write file meet some error: {}", e);
+            return ResponseInfo.build(ResponseInfo.CODE_SYSTEM_ERROR, "del file failed!");
+        }
+        DNSCache.put(Constant.DNS_FILE_NAME_KEY, newHosts);
+        return ResponseInfo.build(ResponseInfo.CODE_OK, "success!");
     }
 
     /**
@@ -163,6 +193,22 @@ public class DDNSWebController {
         DNSCache.put(Constant.DNS_CUSTOMER_CONFIG_KEY, newConfigs);
         ddnsService.saveConfigToFile(newConfigs);
         return ResponseInfo.build(ResponseInfo.CODE_OK, "update success!");
+    }
+
+    @PostMapping("/ddns-config/updateByDomain")
+    public ResponseInfo updateDDNSConfigByDomain(FullHttpRequest request) {
+        List<DNSConfigService.DNSConfigEntity> configs = getCustomerConfigs();
+        Map<String, String> postParams = getPostParams(request);
+        String domain = postParams.get("domain");
+        String host = postParams.get("host");
+        configs.forEach(config -> {
+            if (domain.equals(config.getDomain())) {
+                config.setAddress(host);
+            }
+        });
+        DNSCache.put(Constant.DNS_CUSTOMER_CONFIG_KEY, configs);
+        ddnsService.saveConfigToFile(configs);
+        return ResponseInfo.build(ResponseInfo.CODE_OK, "update success");
     }
 
     /**

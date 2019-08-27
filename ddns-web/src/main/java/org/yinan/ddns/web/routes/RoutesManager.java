@@ -67,20 +67,20 @@ public class RoutesManager {
         routeConfigs.addAll(newRouteConfigs);
     }
 
-    public void activeRouteConfigs() {
+    public void activeConfigs() {
         //初始化基础拦截器
         LOGGER.info("init base middleware ...");
         MiddlewareManager.addMiddleware(new BaseMiddleware());
         //初始化扫描所有的controller
-        List<IRouteConfig> configs = getRouteConfigs();
-        LOGGER.info("init route config ...");
-        for (IRouteConfig config : configs) {
-            try {
-                config.init();
-            } catch (IOException | ClassNotFoundException e) {
-                LOGGER.error("route config init error: {}", e.getMessage());
-            }
-        }
+//        List<IRouteConfig> configs = getRouteConfigs();
+//        LOGGER.info("init route config ...");
+//        for (IRouteConfig config : configs) {
+//            try {
+//                config.init();
+//            } catch (IOException | ClassNotFoundException e) {
+//                LOGGER.error("route config init error: {}", e.getMessage());
+//            }
+//        }
     }
 
 }
