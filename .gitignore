@@ -1,11 +1,4 @@
-
 /ddns.iml
 /.idea/
-/ddns-common/target/
-/ddns-web/target/
-/ddns-server/target/
 /dist/
-/ddns-monitor/ddns-monitor.iml
-/ddns-server/ddns-server.iml
-/ddns-web/ddns-web.iml
-/ddns-common/ddns-common.iml
+/target/
